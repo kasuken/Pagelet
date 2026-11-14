@@ -1,0 +1,131 @@
+/* Pagelet design tokens (docs/DESIGN.md). Light is the default; dark mode follows the OS setting. */
+:root {
+  color-scheme: light dark;
+
+  /* Palette */
+  --color-paper: #fbfcff;
+  --color-ink: #172b4d;
+  --color-cobalt: #244acc;
+  --color-lilac: #e4ddfa;
+  --color-sea-glass: #d7ede7;
+  --color-rule: #ccd5e4;
+  --color-muted: #52647e;
+  --color-white: #ffffff;
+
+  /* Roles */
+  --surface-page: var(--color-paper);
+  --surface-raised: var(--color-white);
+  --surface-sunken: #eef2f9;
+  --text-primary: var(--color-ink);
+  --text-muted: var(--color-muted);
+  --text-link: var(--color-cobalt);
+  /* --shop-accent is set at runtime only when the owner's accent passes 4.5:1 against white. */
+  --action-primary-bg: var(--shop-accent, var(--color-cobalt));
+  --action-primary-bg-active: color-mix(in srgb, var(--action-primary-bg) 80%, #000);
+  --action-primary-text: var(--color-white);
+  --action-secondary-bg: #eaeffc;
+  --action-secondary-bg-active: #dbe3fa;
+  --action-secondary-text: var(--color-cobalt);
+  --border-structure: var(--color-rule);
+  /* Rule is 1.4:1 on paper; inputs need a 3:1 edge (WCAG 1.4.11). */
+  --border-control: #76869f;
+  --focus-ring-color: var(--color-cobalt);
+  --cover-course: var(--color-lilac);
+  --cover-course-spine: #c9bdec;
+  --cover-download: var(--color-sea-glass);
+  --cover-download-spine: #b1d6ca;
+  --cover-text: var(--color-ink);
+  --status-success-bg: var(--color-sea-glass);
+  --status-success-text: #1f5e4c;
+  --status-danger-bg: #fbe9e6;
+  --status-danger-text: #8a2a1f;
+  --status-danger-edge: #b42318;
+  --status-info-bg: #eaeffc;
+  --status-info-text: var(--color-ink);
+  --status-neutral-bg: #eef1f7;
+  --skeleton-base: #e7ecf4;
+
+  /* Type */
+  --font-ui: 'Manrope', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-reading: 'Source Sans 3', 'Segoe UI', system-ui, sans-serif;
+  --text-13: 0.8125rem;
+  --text-15: 0.9375rem;
+  --text-18: 1.125rem;
+  --text-24: 1.5rem;
+  --text-32: 2rem;
+  --text-48: 3rem;
+  --text-64: 4rem;
+  --text-display: clamp(2.5rem, 1.75rem + 3.2vw, 4rem);
+  --text-title: clamp(1.75rem, 1.4rem + 1.5vw, 2.5rem);
+  --leading-body: 1.5;
+  --leading-tight: 1.1;
+  --measure: 72ch;
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-bold: 700;
+
+  /* Space */
+  --space-4: 0.25rem;
+  --space-8: 0.5rem;
+  --space-12: 0.75rem;
+  --space-16: 1rem;
+  --space-24: 1.5rem;
+  --space-32: 2rem;
+  --space-48: 3rem;
+  --space-72: 4.5rem;
+
+  /* Shape */
+  --radius-control: 10px;
+  --radius-group: 18px;
+  --radius-cover: 6px;
+  --touch-target: 44px;
+
+  /* Layout */
+  --page-max: 1200px;
+  --gutter: 20px;
+
+  /* Focus and motion */
+  --focus-ring-width: 3px;
+  --focus-ring-offset: 3px;
+  --motion-fast: 120ms;
+  --motion-base: 160ms;
+  --shadow-dialog: 0 20px 60px rgb(23 43 77 / 0.24);
+}
+
+@media (min-width: 768px) {
+  :root {
+    --gutter: 40px;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --surface-page: #0e1a2f;
+    --surface-raised: #16253f;
+    --surface-sunken: #12203a;
+    --text-primary: #e6ecf6;
+    --text-muted: #a9b6cb;
+    --text-link: #9db2ff;
+    --action-primary-bg: #9db2ff;
+    --action-primary-bg-active: #b9c8ff;
+    --action-primary-text: #0e1a2f;
+    --action-secondary-bg: #22345a;
+    --action-secondary-bg-active: #2c4170;
+    --action-secondary-text: #c9d5ff;
+    --border-structure: #2a3b58;
+    --border-control: #6b7fa0;
+    --focus-ring-color: #9db2ff;
+    --cover-course-spine: #b7a8e6;
+    --cover-download-spine: #9fcbbd;
+    --status-success-bg: #18392f;
+    --status-success-text: #bfe6da;
+    --status-danger-bg: #3a1d1b;
+    --status-danger-text: #ffd2cc;
+    --status-danger-edge: #ff8a7a;
+    --status-info-bg: #1b2c4d;
+    --status-info-text: #e6ecf6;
+    --status-neutral-bg: #22324f;
+    --skeleton-base: #1d2d4a;
+    --shadow-dialog: 0 20px 60px rgb(0 0 0 / 0.5);
+  }
+}
