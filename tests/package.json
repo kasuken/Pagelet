@@ -1,0 +1,21 @@
+{
+  "name": "@pagelet/tests",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test:integration": "vitest run --config vitest.integration.config.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@pagelet/db": "workspace:*",
+    "@playwright/test": "1.65.1",
+    "@types/node": "22.20.5",
+    "@types/pg": "8.23.1",
+    "embedded-postgres": "18.6.0-beta.19",
+    "pg": "8.23.1",
+    "stripe": "23.1.0",
+    "typescript": "5.9.3",
+    "vitest": "5.1.0"
+  }
+}

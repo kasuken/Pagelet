@@ -1,0 +1,32 @@
+{
+  "name": "pagelet",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Your website. Your products. Your start.",
+  "license": "MIT",
+  "engines": {
+    "node": "22.x"
+  },
+  "packageManager": "pnpm@12.18.0",
+  "scripts": {
+    "build": "pnpm -r --filter ./packages/* --filter ./apps/web --filter ./api run bundle",
+    "typecheck": "pnpm -r run typecheck",
+    "lint": "eslint .",
+    "test": "pnpm -r --if-present run test",
+    "test:integration": "pnpm --filter ./tests run test:integration",
+    "validate:backlog": "python3 scripts/validate_backlog.py",
+    "dev:web": "pnpm --filter ./apps/web run dev",
+    "dev:swa": "pnpm --filter ./apps/web run build && pnpm dlx @azure/static-web-apps-cli start http://localhost:5173 --api-location api"
+  },
+  "devDependencies": {
+    "@azure/static-web-apps-cli": "2.1.0",
+    "@eslint/js": "9.39.2",
+    "azure-functions-core-tools": "4.16.1",
+    "eslint": "10.15.0",
+    "globals": "16.5.0",
+    "prettier": "3.8.3",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.72.2",
+    "vitest": "5.1.0"
+  }
+}

@@ -11,3 +11,8 @@ local.settings.json
 __pycache__/
 .pagelet-publish-state.json
 .DS_Store
+api/dist/
+packages/*/dist/
+apps/web/dist/
+.env.local
+.azurite/
