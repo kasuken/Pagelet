@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "ES2023",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "lib": ["ES2023"],
+    "types": ["node"],
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "verbatimModuleSyntax": false,
+    "allowImportingTsExtensions": false,
+    "baseUrl": ".",
+    "paths": { "@pagelet/contracts": ["../packages/contracts/src/index.ts"] }
+  },
+  "include": ["integration/**/*.ts", "helpers/**/*.ts", "dev/**/*.ts", "vitest.integration.config.ts"]
+}

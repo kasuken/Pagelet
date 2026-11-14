@@ -16,3 +16,4 @@ packages/*/dist/
 apps/web/dist/
 .env.local
 .azurite/
+.dev-data/
