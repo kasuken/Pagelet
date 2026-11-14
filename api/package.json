@@ -1,6 +1,6 @@
 {
   "name": "pagelet-api",
-  "version": "0.1.0",
+  "version": "0.0.1",
   "private": true,
   "description": "Pagelet HTTP API for Azure Static Web Apps managed Functions (Node.js 22, programming model v4).",
   "type": "module",

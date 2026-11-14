@@ -1,6 +1,6 @@
 {
   "name": "@pagelet/db",
-  "version": "0.1.0",
+  "version": "0.0.1",
   "private": true,
   "type": "module",
   "description": "Versioned PostgreSQL migrations and the migration runner. Run with the migration role only.",
