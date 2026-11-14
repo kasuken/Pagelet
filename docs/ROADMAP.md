@@ -1,6 +1,6 @@
 # Delivery roadmap
 
-11 epics and 48 child stories. Implementation is **not started**. GitHub publication is a separate step; see [setup](GITHUB_SETUP.md).
+11 epics and 48 child stories. Implementation of E01–E08 is **in progress on the feature branch**; see the ledger in [VERIFICATION](VERIFICATION.md) for what is met, partial, or waiting on a live environment. GitHub publication is a separate step; see [setup](GITHUB_SETUP.md).
 
 Stable keys identify stories independently of GitHub numbers. Each story has scope, acceptance criteria, verification, dependencies, priority, and size in [backlog.json](backlog.json). P0 blocks safe release; P1 is normal planned scope. S/M/L are relative sizes, not delivery promises.
 
