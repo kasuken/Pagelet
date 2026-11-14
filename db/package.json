@@ -1,0 +1,14 @@
+{
+  "name": "@pagelet/db",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Versioned PostgreSQL migrations and the migration runner. Run with the migration role only.",
+  "scripts": {
+    "migrate": "node migrate.mjs",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "pg": "8.23.1"
+  }
+}
