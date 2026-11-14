@@ -1,0 +1,1116 @@
+{
+  "repository": {
+    "owner": "kasuken",
+    "name": "Pagelet",
+    "visibility": "public",
+    "description": "Your website. Your products. Your start.",
+    "homepage": "https://github.com/kasuken/Pagelet#readme",
+    "topics": [
+      "pagelet",
+      "digital-products",
+      "online-courses",
+      "ecommerce",
+      "self-hosted",
+      "azure-static-web-apps",
+      "azure-functions",
+      "postgresql",
+      "typescript",
+      "react"
+    ]
+  },
+  "milestones": [
+    {
+      "title": "M1 · Foundation",
+      "description": "Prove deployment/runtime/database constraints and establish repeatable infrastructure. Operational foundation stories may finish alongside core development."
+    },
+    {
+      "title": "M2 · Core product",
+      "description": "Deliver the owner publishing and customer purchase-to-learning flows."
+    },
+    {
+      "title": "M3 · Launch",
+      "description": "Verify security, accessibility, recovery and a clean owner installation before v1."
+    },
+    {
+      "title": "M4 · Enhancements",
+      "description": "Optional post-v1 learning and sales improvements; not required to ship the core product."
+    }
+  ],
+  "epics": [
+    {
+      "key": "E01",
+      "title": "Foundation and Azure feasibility",
+      "outcome": "Prove the low-cost architecture and establish a reproducible development workflow.",
+      "milestone": "M1 · Foundation",
+      "issues": [
+        {
+          "key": "F01",
+          "title": "Prove SWA managed Functions and PostgreSQL on Azure",
+          "outcome": "Resolve hosting constraints before building commerce.",
+          "acceptance": [
+            "Deploy a disposable static frontend and Node.js 22 managed HTTP Function with /api routing; record exact runtime/configuration.",
+            "Prove pooled PostgreSQL TLS connectivity, cold-start behavior, cookie round trips, raw webhook request bytes, and the owner identity boundary.",
+            "Record limits for 45-second HTTP requests, lack of managed identity/private networking/timers, and required credential rotation.",
+            "Compare Neon and Azure PostgreSQL with a dated cost/network decision; document cleanup and reject unsupported architecture assumptions."
+          ],
+          "verification": "Attach Azure smoke results and a decision record; no production purchase or private data.",
+          "depends_on": [],
+          "size": "L",
+          "area": "infra",
+          "priority": "P0",
+          "milestone": "M1 · Foundation"
+        },
+        {
+          "key": "F02",
+          "title": "Scaffold the static web app, HTTP API, and local environment",
+          "outcome": "Make a fresh checkout runnable with one documented workflow.",
+          "acceptance": [
+            "Create apps/web (React/TypeScript/Vite), api (TypeScript Functions), shared contracts, db, infra, and test folders with pinned supported dependencies.",
+            "Configure SWA navigation, /api errors, local auth emulation, and node:22 consistently; unknown API paths never return index.html.",
+            "Provide a PostgreSQL local setup, dummy fixtures, environment examples, and ignored local secrets.",
+            "Add lint, typecheck, build and focused test scripts; production does not contain the design prototype or dev-auth bypass."
+          ],
+          "verification": "Fresh clone install/build and local SWA health request succeed; API 404 and private-route handling verified.",
+          "depends_on": [
+            "F01"
+          ],
+          "size": "M",
+          "area": "platform",
+          "priority": "P0",
+          "milestone": "M1 · Foundation"
+        },
+        {
+          "key": "F03",
+          "title": "Create PostgreSQL schema and migration workflow",
+          "outcome": "Protect orders and ownership with relational constraints.",
+          "acceptance": [
+            "Implement the core entities and invariants in ARCHITECTURE.md, including effective entitlements and separate purchase grants.",
+            "Use unique provider IDs, foreign keys, integer money, UTC instants, and unique customer/lesson progress.",
+            "Provide versioned SQL migrations, migration locking, separate migration/runtime roles, and development seed data.",
+            "Demonstrate upgrade from an earlier schema and safe backup/restore recovery; app requests never migrate implicitly."
+          ],
+          "verification": "Run integration checks against real PostgreSQL for uniqueness, rollback, foreign keys, and migration concurrency.",
+          "depends_on": [
+            "F02"
+          ],
+          "size": "L",
+          "area": "backend",
+          "priority": "P0",
+          "milestone": "M1 · Foundation"
+        },
+        {
+          "key": "F04",
+          "title": "Establish CI checks and API conventions",
+          "outcome": "Keep changes buildable and errors consistent.",
+          "acceptance": [
+            "CI runs install from lockfile, lint, typecheck, frontend/API builds and relevant tests with least-privilege permissions and pinned actions.",
+            "Define structured validation errors, request IDs, redacted logs, bounded request bodies, pagination, and public/private cache behavior.",
+            "Use safe PR checks without production secrets; publish only sanitized test artifacts.",
+            "Document checks required for merge and how to reproduce them locally."
+          ],
+          "verification": "A deliberate validation failure returns the agreed contract; CI passes on the scaffold and fails for a broken build.",
+          "depends_on": [
+            "F02"
+          ],
+          "size": "M",
+          "area": "platform",
+          "priority": "P0",
+          "milestone": "M1 · Foundation"
+        }
+      ]
+    },
+    {
+      "key": "E02",
+      "title": "Owner identity and customer access",
+      "outcome": "Give one owner control and customers secure access to their purchases.",
+      "milestone": "M2 · Core product",
+      "issues": [
+        {
+          "key": "A01",
+          "title": "Enforce exactly one configured owner",
+          "outcome": "Prevent another authenticated identity from administering the shop.",
+          "acceptance": [
+            "Configure one SWA provider plus immutable owner ID outside the public bundle; no first-login claiming, invitations, or role editor.",
+            "Check the exact owner identity on every admin API and guard admin routes; fail closed when configuration is missing.",
+            "Provide logout, expired-session behavior, and a trusted configuration-based owner recovery guide.",
+            "Ensure production ignores dev identity headers and customer sessions never imply owner privileges."
+          ],
+          "verification": "Test anonymous/customer/wrong-provider/wrong-ID denial and configured-owner success through deployed SWA.",
+          "depends_on": [
+            "F01",
+            "F03",
+            "F04"
+          ],
+          "size": "M",
+          "area": "backend",
+          "priority": "P0",
+          "milestone": "M2 · Core product"
+        },
+        {
+          "key": "A02",
+          "title": "Implement passwordless customer sign-in and recovery",
+          "outcome": "Let buyers recover their purchases through verified email.",
+          "acceptance": [
+            "Issue random single-use expiring login tokens, store only hashes, and rate-limit by normalized identity and request source without revealing account existence.",
+            "Use an explicit confirmation POST before consuming the token so mail scanners cannot log in or burn links.",
+            "Create rotating server-side sessions with Secure/HttpOnly/SameSite cookies, logout/revoke paths, and CSRF/origin checks.",
+            "Constrain return URLs to local allowed paths; mask addresses in UI and redact tokens from logs."
+          ],
+          "verification": "Verify expiry/replay, enumeration resistance, scanner GET, cross-origin mutation, session rotation and email recovery.",
+          "depends_on": [
+            "F03",
+            "F04"
+          ],
+          "size": "L",
+          "area": "backend",
+          "priority": "P0",
+          "milestone": "M2 · Core product"
+        },
+        {
+          "key": "A03",
+          "title": "Centralize customer entitlement checks",
+          "outcome": "Ensure every paid asset and lesson belongs to the signed-in buyer.",
+          "acceptance": [
+            "Authorize library, lesson, progress, asset and receipt access by customer and effective entitlement.",
+            "Resolve course/resource relationships server-side; guessing another object ID never grants access.",
+            "Published previews expose only explicitly public content; draft previews require owner access.",
+            "Define no-store responses and access-denied/expired-session states without leaking purchase details."
+          ],
+          "verification": "Integration tests cross two customers, revoked/absent grants, draft products and mismatched resource IDs.",
+          "depends_on": [
+            "A01",
+            "A02",
+            "F03"
+          ],
+          "size": "M",
+          "area": "backend",
+          "priority": "P0",
+          "milestone": "M2 · Core product"
+        },
+        {
+          "key": "A04",
+          "title": "Add transactional access email and delivery recovery",
+          "outcome": "Make purchase access reliable without a background scheduler.",
+          "acceptance": [
+            "Create templates for login links, purchase access and refund/access changes with accessible text/HTML variants.",
+            "Persist outbox entries in the relevant transaction; bound synchronous delivery time and use provider idempotency where available.",
+            "Expose failed/pending deliveries to the owner with audited retry; customer login recovery works even if the purchase email failed.",
+            "Document provider setup, sender-domain verification, retry semantics and the HTTP-only scheduler tradeoff."
+          ],
+          "verification": "Simulate transport timeout, duplicate retry and DB commit failure; no lost order or duplicate entitlement.",
+          "depends_on": [
+            "A01",
+            "A02",
+            "F03"
+          ],
+          "size": "M",
+          "area": "backend",
+          "priority": "P0",
+          "milestone": "M2 · Core product"
+        }
+      ]
+    },
+    {
+      "key": "E03",
+      "title": "Product and course authoring",
+      "outcome": "Let the owner create and safely publish useful learning products.",
+      "milestone": "M2 · Core product",
+      "issues": [
+        {
+          "key": "C01",
+          "title": "Build the product catalog model and editor",
+          "outcome": "Create courses and standalone digital products.",
+          "acceptance": [
+            "Edit title, slug, description, outcomes, cover, price/currency and product type with shared validation.",
+            "Support draft/published/archived lifecycle; sold products archive instead of destructive deletion.",
+            "Preserve purchase snapshots when prices or titles change, and prevent concurrent edits from silently overwriting each other.",
+            "Provide explicit save, unsaved-change warning, empty catalog and actionable validation errors."
+          ],
+          "verification": "Create/edit/archive both product types; verify slug collisions, stale saves and unchanged historical orders.",
+          "depends_on": [
+            "A01",
+            "F03"
+          ],
+          "size": "L",
+          "area": "fullstack",
+          "priority": "P1",
+          "milestone": "M2 · Core product"
+        },
+        {
+          "key": "C02",
+          "title": "Build the curriculum and lesson editor",
+          "outcome": "Organize course content without a complex CMS.",
+          "acceptance": [
+            "Create ordered sections and video/text lessons, attach resources, and set preview visibility explicitly.",
+            "Provide accessible move-up/down actions alongside optional drag reorder; order survives reload.",
+            "Sanitize rich text and restrict embeds/URLs; prevent orphan or cross-product resources.",
+            "Validate required media/transcripts and show draft preview only to the owner."
+          ],
+          "verification": "Exercise editing/reordering with keyboard and malicious content fixtures; verify draft privacy.",
+          "depends_on": [
+            "C01",
+            "M01",
+            "M02"
+          ],
+          "size": "L",
+          "area": "fullstack",
+          "priority": "P1",
+          "milestone": "M2 · Core product"
+        },
+        {
+          "key": "C03",
+          "title": "Build the digital-download product editor",
+          "outcome": "Sell files independently of a course.",
+          "acceptance": [
+            "Attach one or several validated PDF/EPUB/ZIP/MP3/image assets with version labels and clear included-file details.",
+            "Configure update availability for existing buyers; replacing a file does not break historical purchase access.",
+            "Prevent deleting referenced paid assets and prohibit public object URLs.",
+            "Provide publish-readiness errors for missing/rejected files and clear upload progress/retry states."
+          ],
+          "verification": "Publish a PDF and ZIP product; replace a file and confirm an existing buyer still has the promised access.",
+          "depends_on": [
+            "C01",
+            "M01",
+            "M02"
+          ],
+          "size": "M",
+          "area": "fullstack",
+          "priority": "P1",
+          "milestone": "M2 · Core product"
+        },
+        {
+          "key": "C04",
+          "title": "Implement draft preview and atomic publication",
+          "outcome": "Separate saved edits from a working public listing.",
+          "acceptance": [
+            "Create a publishable catalog version and validate required content, price, legal settings and assets before publication.",
+            "Expose owner-only preview; trigger the static public catalog build via a narrowly scoped server credential.",
+            "Show publishing/succeeded/failed state, retain last successful public version on failure, and allow retry without duplication.",
+            "Handle unpublish/archive policy explicitly: existing entitled customers retain promised content unless revoked."
+          ],
+          "verification": "Force build failure and retry; verify public HTML never includes drafts, private lessons or secrets.",
+          "depends_on": [
+            "C02",
+            "C03",
+            "S02",
+            "I01"
+          ],
+          "size": "L",
+          "area": "fullstack",
+          "priority": "P0",
+          "milestone": "M2 · Core product"
+        },
+        {
+          "key": "C05",
+          "title": "Add shop branding, creator profile and legal settings",
+          "outcome": "Make the installation feel like the creator’s own shop.",
+          "acceptance": [
+            "Edit shop name, logo, accessible accent, introduction, creator biography, contact links and featured product.",
+            "Validate accent contrast and image alternatives; retain a usable default theme.",
+            "Configure one currency, timezone, seller details, refund/privacy/terms pages and required digital-delivery consent.",
+            "Block live checkout when required seller/legal/tax choices are incomplete; store policy version with orders."
+          ],
+          "verification": "Preview mobile/desktop branding; reject inaccessible color and incomplete launch configuration.",
+          "depends_on": [
+            "A01",
+            "C01"
+          ],
+          "size": "M",
+          "area": "fullstack",
+          "priority": "P1",
+          "milestone": "M2 · Core product"
+        }
+      ]
+    },
+    {
+      "key": "E04",
+      "title": "Private files and video delivery",
+      "outcome": "Deliver large media without routing bytes through managed Functions.",
+      "milestone": "M2 · Core product",
+      "issues": [
+        {
+          "key": "M01",
+          "title": "Implement owner-only direct uploads",
+          "outcome": "Keep uploads private, bounded and recoverable.",
+          "acceptance": [
+            "Create private containers and blob-specific short-lived write URLs after owner validation and quota checks.",
+            "Upload browser-to-storage with progress/cancel/retry; never send media through SWA APIs.",
+            "Finalize against expected object key, actual size and type; keep assets quarantined until validation succeeds.",
+            "Reject active/executable types, avoid extracting ZIPs, and define cleanup for aborted/rejected uploads plus credential rotation."
+          ],
+          "verification": "Upload beyond API size/duration thresholds directly; test forged finalization, over-limit objects and expired SAS.",
+          "depends_on": [
+            "A01",
+            "F03",
+            "I01"
+          ],
+          "size": "L",
+          "area": "backend",
+          "priority": "P0",
+          "milestone": "M2 · Core product"
+        },
+        {
+          "key": "M02",
+          "title": "Implement authorized file delivery and versioning",
+          "outcome": "Only an entitled buyer can mint a download link.",
+          "acceptance": [
+            "Issue read-only blob-specific links after relationship and entitlement checks, with a five-minute default expiry.",
+            "Use safe download filenames/content disposition and private/no-store API responses; log no SAS queries.",
+            "Preserve asset versions required by purchases and define audited retention/orphan cleanup.",
+            "Display expired/missing/revoked-file states; state that previously downloaded files cannot be recalled."
+          ],
+          "verification": "Test another customer, revoked grants, expired links, filename injection and inaccessible raw storage URLs.",
+          "depends_on": [
+            "A03",
+            "M01"
+          ],
+          "size": "M",
+          "area": "backend",
+          "priority": "P0",
+          "milestone": "M2 · Core product"
+        },
+        {
+          "key": "M03",
+          "title": "Deliver protected video with captions and resume",
+          "outcome": "Make pre-encoded lessons watchable on real devices.",
+          "acceptance": [
+            "Support MP4 H.264/AAC direct playback with Range requests, WebVTT captions and transcript access.",
+            "Mint bounded playback URLs and refresh only after rechecking entitlement; preserve position during refresh.",
+            "Handle buffering, unsupported media, missing captions, network failure and session expiry without autoplay.",
+            "Document encoding guidance, upload limits, lack of adaptive transcoding/DRM, and measured bandwidth."
+          ],
+          "verification": "Verify seek/resume, expiry mid-play, revoked refresh, captions and mobile Safari/Chromium playback.",
+          "depends_on": [
+            "M02"
+          ],
+          "size": "L",
+          "area": "fullstack",
+          "priority": "P1",
+          "milestone": "M2 · Core product"
+        },
+        {
+          "key": "M04",
+          "title": "Expose media quotas and safe lifecycle maintenance",
+          "outcome": "Make storage growth visible to the owner.",
+          "acceptance": [
+            "Display validated stored bytes, configured upload limits, failed uploads and unused asset candidates.",
+            "Require explicit confirmation before recoverable cleanup; never delete assets referenced by live purchase promises.",
+            "Provide audit records and documented storage lifecycle/version retention rules.",
+            "Evaluate scanning of owner uploads and document trust/cost choice; no unreviewed public upload path."
+          ],
+          "verification": "Run cleanup on fixtures containing sold, draft, orphan and failed assets; prove sold references survive.",
+          "depends_on": [
+            "M01",
+            "M02"
+          ],
+          "size": "M",
+          "area": "fullstack",
+          "priority": "P1",
+          "milestone": "M2 · Core product"
+        }
+      ]
+    },
+    {
+      "key": "E05",
+      "title": "Distinctive storefront and design system",
+      "outcome": "Give creators a polished, fast, accessible shop with a recognizable visual identity.",
+      "milestone": "M2 · Core product",
+      "issues": [
+        {
+          "key": "S01",
+          "title": "Implement the Pagelet design system and app shells",
+          "outcome": "Turn the digital bookshelf direction into reusable UI.",
+          "acceptance": [
+            "Implement DESIGN.md tokens, self-hosted licensed fonts, buttons, fields, tabs, dialogs, notices and layout primitives.",
+            "Build Shop, My learning and Studio shells with clear navigation and responsive behavior at 360/768/1440px.",
+            "Include focus, hover, disabled, pending, success, empty and error states; respect reduced motion.",
+            "Use the prototype as a visual reference while replacing its fictional behavior with typed production components."
+          ],
+          "verification": "Provide desktop/mobile screenshots, keyboard walkthrough and automated accessibility results.",
+          "depends_on": [
+            "F02"
+          ],
+          "size": "L",
+          "area": "frontend",
+          "priority": "P1",
+          "milestone": "M2 · Core product"
+        },
+        {
+          "key": "S02",
+          "title": "Build the public catalog and static product export",
+          "outcome": "Make public products discoverable and crawlable.",
+          "acceptance": [
+            "Render featured course, product collection, type filters, price/currency and clear empty/no-results states.",
+            "Generate only published public pages and metadata from a versioned catalog export; no paid content in assets or HTML.",
+            "Create canonical URLs, sitemap/robots rules, Open Graph data and appropriate structured data.",
+            "Use real 404 behavior, stable slugs/redirects, optimized covers and small lazy-loaded bundles."
+          ],
+          "verification": "Inspect generated HTML without JavaScript; verify draft exclusion, filter keyboard behavior, missing slugs and sitemap.",
+          "depends_on": [
+            "C01",
+            "S01"
+          ],
+          "size": "L",
+          "area": "frontend",
+          "priority": "P1",
+          "milestone": "M2 · Core product"
+        },
+        {
+          "key": "S03",
+          "title": "Build course and download product detail pages",
+          "outcome": "Let visitors understand what they are buying.",
+          "acceptance": [
+            "Show outcomes, creator, prerequisites, included assets or curriculum, price/currency and refund terms.",
+            "Expose only explicitly public previews; list locked lessons without private URLs.",
+            "Use one clear purchase/open action with pending/error handling and known-purchase behavior.",
+            "Lay out long titles, empty optional sections and mobile purchase controls without obscuring content."
+          ],
+          "verification": "Test course/download variants, preview authorization, long content and responsive accessibility.",
+          "depends_on": [
+            "S02",
+            "C05",
+            "A03"
+          ],
+          "size": "M",
+          "area": "frontend",
+          "priority": "P1",
+          "milestone": "M2 · Core product"
+        },
+        {
+          "key": "S04",
+          "title": "Build checkout return and access-recovery screens",
+          "outcome": "Help buyers recover from slow payments or lost email.",
+          "acceptance": [
+            "Handle pending, paid, failed, canceled and expired checkout states without granting client-side access.",
+            "Provide a verified-email access route and helpful masked-address guidance; never show another buyer’s order.",
+            "Use bounded polling with retry/backoff and a stable recovery path when a webhook is delayed.",
+            "Display receipts/policies and distinguish a payment still processing from a purchase ready to open."
+          ],
+          "verification": "Simulate closing the browser after payment, delayed webhook, wrong customer and email delivery failure.",
+          "depends_on": [
+            "S01",
+            "P02",
+            "A02"
+          ],
+          "size": "M",
+          "area": "frontend",
+          "priority": "P0",
+          "milestone": "M2 · Core product"
+        },
+        {
+          "key": "S05",
+          "title": "Review and polish all responsive customer and owner flows",
+          "outcome": "Meet the intended visual standard across full journeys.",
+          "acceptance": [
+            "Review catalog, details, checkout handoff, library, player, editor, orders and settings against DESIGN.md.",
+            "Fix content hierarchy, spacing, wrapping, dialog focus, touch targets and 200% zoom behavior.",
+            "Provide deliberate empty/loading/error/expired/revoked states with consistent action wording.",
+            "Capture reviewed desktop/mobile screenshots and document any justified visual changes."
+          ],
+          "verification": "Manual keyboard and screen-reader spot checks plus visual regression evidence for critical screens.",
+          "depends_on": [
+            "S03",
+            "S04",
+            "L04",
+            "O03"
+          ],
+          "size": "L",
+          "area": "design",
+          "priority": "P1",
+          "milestone": "M2 · Core product"
+        }
+      ]
+    },
+    {
+      "key": "E06",
+      "title": "Payments and reliable fulfillment",
+      "outcome": "Turn verified payments into correct, auditable customer access.",
+      "milestone": "M2 · Core product",
+      "issues": [
+        {
+          "key": "P01",
+          "title": "Create server-priced Stripe Checkout sessions",
+          "outcome": "Accept payment without handling card data.",
+          "acceptance": [
+            "Create one-product Checkout Sessions using a published server-side price, integer minor units and configured currency.",
+            "Persist the immutable item snapshot and request idempotency key; reject tampered amounts or unpublished products.",
+            "Separate test/live mode and validate shop launch settings before live checkout.",
+            "Collect required billing/consent information and explain the chosen tax mode; support safe cancel/return URLs."
+          ],
+          "verification": "Sandbox checkout tests cover double click, altered price/currency/product and missing legal configuration.",
+          "depends_on": [
+            "C01",
+            "C05",
+            "F03",
+            "F04"
+          ],
+          "size": "L",
+          "area": "backend",
+          "priority": "P0",
+          "milestone": "M2 · Core product"
+        },
+        {
+          "key": "P02",
+          "title": "Implement signed idempotent payment fulfillment",
+          "outcome": "Grant purchases exactly once even when callbacks repeat.",
+          "acceptance": [
+            "Verify Stripe signatures against raw bytes and check event mode plus authoritative paid status.",
+            "Process immediate and delayed success/failure events; never treat a redirect or unpaid completed session as payment.",
+            "Transactionally record unique event/order identifiers, item snapshot, purchase grant and outbox entry.",
+            "Tolerate duplicate/concurrent/out-of-order events; retry transient failures and expose reconciliation status."
+          ],
+          "verification": "Replay sandbox fixtures concurrently; simulate DB rollback, lost redirect and delayed payment; assert one order/grant.",
+          "depends_on": [
+            "P01",
+            "A03",
+            "A04"
+          ],
+          "size": "L",
+          "area": "backend",
+          "priority": "P0",
+          "milestone": "M2 · Core product"
+        },
+        {
+          "key": "P03",
+          "title": "Synchronize refunds and disputes with access",
+          "outcome": "Keep access aligned with the actual purchase state.",
+          "acceptance": [
+            "Sync full/partial refunds and dispute transitions from signed authoritative provider data.",
+            "Full refunds revoke their purchase grant; partial refunds retain it by default with explicit owner override.",
+            "Open disputes suspend the associated grant; won/lost resolution restores/revokes appropriately without undoing unrelated grants.",
+            "Handle events before/after payment completion and audit changes; expose external Stripe action links to the owner."
+          ],
+          "verification": "Test refund-before-paid, duplicate refund, partial refund, dispute win/loss and multiple grants for one product.",
+          "depends_on": [
+            "P02"
+          ],
+          "size": "L",
+          "area": "backend",
+          "priority": "P0",
+          "milestone": "M2 · Core product"
+        },
+        {
+          "key": "P04",
+          "title": "Implement verified free-product claims",
+          "outcome": "Offer free resources without an insecure checkout shortcut.",
+          "acceptance": [
+            "Only published zero-price products use the free claim path; paid products cannot be forced to zero by the client.",
+            "Require verified customer identity and create an idempotent free grant with an audit record.",
+            "Rate-limit abuse and use the same library/delivery authorization as paid purchases.",
+            "Do not create a paid Stripe order or automatically subscribe the customer to marketing."
+          ],
+          "verification": "Verify duplicate claims, anonymous attempts, price tampering and legitimate library delivery.",
+          "depends_on": [
+            "A03",
+            "C01",
+            "P02"
+          ],
+          "size": "M",
+          "area": "backend",
+          "priority": "P1",
+          "milestone": "M2 · Core product"
+        },
+        {
+          "key": "P05",
+          "title": "Implement receipts and payment reconciliation",
+          "outcome": "Give the owner a trustworthy recovery path for payment exceptions.",
+          "acceptance": [
+            "Show customer-owned immutable order details and provider receipt links with currency and refund state.",
+            "Provide owner-triggered reconciliation by date/provider identifier with bounded batches and idempotent repairs.",
+            "Link fulfillment/email exceptions to recovery actions without exposing card data or secrets.",
+            "Document reconciliation after downtime and retention requirements for financial records."
+          ],
+          "verification": "Seed missed/duplicate/out-of-order provider events; reconcile twice and verify identical final state.",
+          "depends_on": [
+            "P03",
+            "A04"
+          ],
+          "size": "L",
+          "area": "backend",
+          "priority": "P0",
+          "milestone": "M2 · Core product"
+        }
+      ]
+    },
+    {
+      "key": "E07",
+      "title": "Customer library and learning experience",
+      "outcome": "Make purchased knowledge pleasant to use and easy to resume.",
+      "milestone": "M2 · Core product",
+      "issues": [
+        {
+          "key": "L01",
+          "title": "Build the customer purchase library",
+          "outcome": "Put all available courses and files in one clear place.",
+          "acceptance": [
+            "List only the signed-in customer’s entitled products with course/download differentiation and valid next actions.",
+            "Show useful empty, loading, expired-session and revoked-access states; link to purchase recovery.",
+            "Paginate large libraries and retain access promised for archived products.",
+            "Show purchase/receipt details without revealing personal data to another session."
+          ],
+          "verification": "Two-customer end-to-end library tests including archive, revocation and email recovery.",
+          "depends_on": [
+            "A03",
+            "P02",
+            "S01"
+          ],
+          "size": "M",
+          "area": "fullstack",
+          "priority": "P1",
+          "milestone": "M2 · Core product"
+        },
+        {
+          "key": "L02",
+          "title": "Build the lesson workspace and curriculum navigation",
+          "outcome": "Let learners focus on the material.",
+          "acceptance": [
+            "Implement responsive curriculum, selected lesson, video/text content, transcript and resources using DESIGN.md.",
+            "Support keyboard navigation and a mobile curriculum disclosure with correct focus behavior.",
+            "Previews and locked/revoked lessons have distinct states; lesson URLs are deep-linkable after authentication.",
+            "Include clear previous/next actions and empty/missing-media recovery."
+          ],
+          "verification": "Navigate a mixed-content course on mobile/desktop with keyboard and screen reader; test unauthorized deep links.",
+          "depends_on": [
+            "L01",
+            "C02",
+            "M03"
+          ],
+          "size": "L",
+          "area": "frontend",
+          "priority": "P1",
+          "milestone": "M2 · Core product"
+        },
+        {
+          "key": "L03",
+          "title": "Persist progress and safe video resume",
+          "outcome": "Let customers continue learning across sessions.",
+          "acceptance": [
+            "Persist bounded playback positions and explicit completion with unique customer/lesson records.",
+            "Debounce writes, flush appropriately and avoid counting seek events as completion.",
+            "Show saved/unsaved/retry state honestly; define conflict handling for two tabs/devices.",
+            "Compute progress against eligible published lessons and define how course edits affect completion."
+          ],
+          "verification": "Reload/resume, concurrent updates, offline retry, invalid positions and cross-customer mutations are tested.",
+          "depends_on": [
+            "L02",
+            "A03"
+          ],
+          "size": "M",
+          "area": "fullstack",
+          "priority": "P1",
+          "milestone": "M2 · Core product"
+        },
+        {
+          "key": "L04",
+          "title": "Build downloads and customer account controls",
+          "outcome": "Keep access and privacy actions understandable.",
+          "acceptance": [
+            "Show included files, version/format/size, short-lived download action and expired-link retry.",
+            "Provide logout, session revocation, receipt access, contact/help and an account-data request path.",
+            "Reverify identity for sensitive changes; no uncontrolled email reassignment of purchases.",
+            "Explain revoked access and preserve required financial records under a documented retention policy."
+          ],
+          "verification": "Test file download authorization, logout invalidation, stale link retry and customer-owned data boundaries.",
+          "depends_on": [
+            "L01",
+            "M02",
+            "P05"
+          ],
+          "size": "M",
+          "area": "fullstack",
+          "priority": "P1",
+          "milestone": "M2 · Core product"
+        }
+      ]
+    },
+    {
+      "key": "E08",
+      "title": "Single-owner shop operations",
+      "outcome": "Give one owner the controls needed to run a real shop.",
+      "milestone": "M2 · Core product",
+      "issues": [
+        {
+          "key": "O01",
+          "title": "Build the owner overview and product workspace",
+          "outcome": "Make publishing and exceptions the primary admin tasks.",
+          "acceptance": [
+            "Show real sales/refund totals with defined date/currency semantics, recent orders and failed fulfillment/email indicators.",
+            "Provide product rows with draft/live/archive status and clear edit/preview/publish actions.",
+            "Use a useful first-product empty state; never show fabricated production metrics.",
+            "Ensure keyboard, mobile table alternatives and error recovery match the design system."
+          ],
+          "verification": "Reconcile displayed metrics to seeded order/refund records and test empty/large datasets.",
+          "depends_on": [
+            "S01",
+            "C04",
+            "P03"
+          ],
+          "size": "M",
+          "area": "fullstack",
+          "priority": "P1",
+          "milestone": "M2 · Core product"
+        },
+        {
+          "key": "O02",
+          "title": "Build order and customer support views",
+          "outcome": "Answer common buyer questions without a CRM.",
+          "acceptance": [
+            "Search/paginate orders by safe identifiers and show status, immutable items, receipts and grant history.",
+            "Provide a minimal customer purchase view with only necessary personal data.",
+            "Expose resend access instructions and external Stripe payment/refund links with audit records.",
+            "Provide safe CSV export with formula-injection protection and explicit date/currency columns."
+          ],
+          "verification": "Test pagination, search authorization, dangerous CSV cell values and resend failure recovery.",
+          "depends_on": [
+            "P05",
+            "O01"
+          ],
+          "size": "M",
+          "area": "fullstack",
+          "priority": "P1",
+          "milestone": "M2 · Core product"
+        },
+        {
+          "key": "O03",
+          "title": "Add complimentary access and revocation controls",
+          "outcome": "Let the owner resolve access cases transparently.",
+          "acceptance": [
+            "Grant or revoke access for a verified customer/product with a required reason and immutable audit entry.",
+            "Preserve distinct purchase and complimentary grant sources; one revocation cannot erase unrelated valid grants.",
+            "Explain the effect before confirming and show the updated customer access state.",
+            "Send access-change notification through the outbox without making email success a transaction requirement."
+          ],
+          "verification": "Exercise multiple grants, duplicate action, concurrent refund and failed notification; verify effective entitlement.",
+          "depends_on": [
+            "O02",
+            "A04",
+            "A03"
+          ],
+          "size": "M",
+          "area": "fullstack",
+          "priority": "P1",
+          "milestone": "M2 · Core product"
+        },
+        {
+          "key": "O04",
+          "title": "Define privacy, retention and operational audit controls",
+          "outcome": "Keep customer data proportional to the shop’s needs.",
+          "acceptance": [
+            "Document data inventory, purposes, retention and service-provider locations without claiming automatic legal compliance.",
+            "Implement verified export/deletion requests while preserving legally required financial records under configured policy.",
+            "Redact tokens, signed URLs and sensitive fields from logs; define audit retention/access.",
+            "Add minimal first-party aggregate analytics; optional nonessential tracking requires a deliberate consent design."
+          ],
+          "verification": "Verify export isolation and deletion behavior with linked purchases; inspect logs for seeded sensitive values.",
+          "depends_on": [
+            "A02",
+            "P05",
+            "O02"
+          ],
+          "size": "M",
+          "area": "backend",
+          "priority": "P0",
+          "milestone": "M2 · Core product"
+        }
+      ]
+    },
+    {
+      "key": "E09",
+      "title": "Deployment, cost controls and recovery",
+      "outcome": "Make an installation reproducible, observable and recoverable.",
+      "milestone": "M1 · Foundation",
+      "issues": [
+        {
+          "key": "I01",
+          "title": "Define SWA and private storage infrastructure",
+          "outcome": "Provision the minimum Azure footprint reproducibly.",
+          "acceptance": [
+            "Create parameterized Bicep for SWA plan/region and private storage with approved origins and secure transport.",
+            "Document external PostgreSQL and email prerequisites plus app-setting secret injection/rotation.",
+            "Define isolated test/production resources and retention; PR previews must not reach live orders or payment secrets.",
+            "Provide deployment outputs, cleanup instructions and a reviewed cost estimate before creating live resources."
+          ],
+          "verification": "Validate templates and deploy a disposable environment; confirm storage anonymity fails and secrets stay out of output.",
+          "depends_on": [
+            "F01",
+            "F02"
+          ],
+          "size": "L",
+          "area": "infra",
+          "priority": "P0",
+          "milestone": "M1 · Foundation"
+        },
+        {
+          "key": "I02",
+          "title": "Automate build, migration and SWA deployment",
+          "outcome": "Ship changes with a safe recovery path.",
+          "acceptance": [
+            "Add GitHub Actions for static build and managed API deployment using least privileges and pinned actions.",
+            "Use protected production configuration and separate sandbox integration values; no untrusted fork gets deployment secrets.",
+            "Run migrations in a controlled locked step with backward-compatible rollout rules and smoke checks.",
+            "Document rollback to a known build and forward repair/restore strategy for nonreversible data migrations."
+          ],
+          "verification": "Deploy a preview, promote a tested build, simulate failed migration and rehearse rollback without touching live orders.",
+          "depends_on": [
+            "F04",
+            "F03",
+            "I01"
+          ],
+          "size": "L",
+          "area": "infra",
+          "priority": "P0",
+          "milestone": "M1 · Foundation"
+        },
+        {
+          "key": "I03",
+          "title": "Add health, cost and exception observability",
+          "outcome": "Detect failures without running a large monitoring stack.",
+          "acceptance": [
+            "Emit redacted structured diagnostics, request IDs and health checks that expose no secrets.",
+            "Track payment failures, unresolved outbox items, storage growth, API latency and database connection pressure.",
+            "Complete COSTS.md worksheet with dated regional rates and pilot/growth measurements; configure budget alerts and bounded retention.",
+            "Provide an owner runbook for payment outage, email failure, quota exhaustion and database unavailability."
+          ],
+          "verification": "Inject representative faults and confirm visible signals; calculate video transfer from measured sample playback.",
+          "depends_on": [
+            "I02",
+            "F04"
+          ],
+          "size": "M",
+          "area": "infra",
+          "priority": "P0",
+          "milestone": "M1 · Foundation"
+        },
+        {
+          "key": "I04",
+          "title": "Implement backups and rehearse restoration",
+          "outcome": "Recover purchases and content after data loss.",
+          "acceptance": [
+            "Configure database backup/history and blob version/retention strategy within the chosen provider budget.",
+            "Restore into an isolated environment and verify product, order, grant and asset references.",
+            "Measure proposed 24h RPO/4h RTO, document actual achieved targets and reconcile Stripe changes after the restore point.",
+            "Document credential rotation, backup encryption/access and an upgrade/restore checklist."
+          ],
+          "verification": "Attach a timed restore report and reconciliation results using sandbox data; do not claim untested recovery targets.",
+          "depends_on": [
+            "I02",
+            "F03"
+          ],
+          "size": "L",
+          "area": "infra",
+          "priority": "P0",
+          "milestone": "M1 · Foundation"
+        }
+      ]
+    },
+    {
+      "key": "E10",
+      "title": "Launch verification and owner onboarding",
+      "outcome": "Deliver a tested product that an independent owner can install and run.",
+      "milestone": "M3 · Launch",
+      "issues": [
+        {
+          "key": "Q01",
+          "title": "Verify purchase-to-learning and refund journeys end to end",
+          "outcome": "Prove the product’s critical business flow.",
+          "acceptance": [
+            "Automate owner publish, customer checkout, webhook fulfillment, email recovery, library, lesson progress and file download.",
+            "Cover duplicate/out-of-order events, delayed payment, full/partial refund, disputes, revoked access and missing email.",
+            "Run core tests against real PostgreSQL and deployed SWA with Stripe sandbox fixtures.",
+            "Keep fixtures isolated and report failures with redacted evidence rather than retrying them into a false pass."
+          ],
+          "verification": "Publish end-to-end results for Chromium plus representative mobile Safari coverage.",
+          "depends_on": [
+            "S04",
+            "L04",
+            "O03",
+            "P04",
+            "P05",
+            "I02"
+          ],
+          "size": "L",
+          "area": "quality",
+          "priority": "P0",
+          "milestone": "M3 · Launch"
+        },
+        {
+          "key": "Q02",
+          "title": "Audit accessibility, security and performance",
+          "outcome": "Close release-blocking risks across real user journeys.",
+          "acceptance": [
+            "Test keyboard, screen-reader flows, 200% zoom, captions, focus recovery and WCAG 2.2 AA contrast/semantics.",
+            "Exercise owner impersonation, cross-customer access, CSRF, XSS, token replay, rate-limit abuse and private cache leakage.",
+            "Measure public JS/LCP/CLS budgets, cold/warm APIs, pooled DB load and video expiry on the actual deployment.",
+            "Triage findings with reproduction/evidence; no unresolved critical payment, access or secret-exposure issue at release."
+          ],
+          "verification": "Attach measured reports and verified fixes, including dependency/secret scanning and manual checks.",
+          "depends_on": [
+            "S05",
+            "Q01",
+            "O04",
+            "I03"
+          ],
+          "size": "L",
+          "area": "quality",
+          "priority": "P0",
+          "milestone": "M3 · Launch"
+        },
+        {
+          "key": "Q03",
+          "title": "Write and test the installation and operations guide",
+          "outcome": "Allow a new owner to launch without tribal knowledge.",
+          "acceptance": [
+            "Document account prerequisites, region/cost choices, database/storage/email/Stripe setup and immutable owner configuration.",
+            "Walk through branding, legal/tax decisions, first course/download, sandbox purchase and customer recovery.",
+            "Include backups, upgrades, rollback, monitoring, billing limits, domain/TLS and troubleshooting.",
+            "Run the guide from a clean environment and record gaps; separate sandbox steps from enabling live payments."
+          ],
+          "verification": "A clean-install rehearsal reaches a sandbox course purchase and restore exercise without undocumented steps.",
+          "depends_on": [
+            "Q01",
+            "I04",
+            "C05",
+            "I03"
+          ],
+          "size": "L",
+          "area": "docs",
+          "priority": "P0",
+          "milestone": "M3 · Launch"
+        },
+        {
+          "key": "Q04",
+          "title": "Complete the v1 release checklist and live-readiness review",
+          "outcome": "Ship only when core flows and operational choices are proven.",
+          "acceptance": [
+            "Confirm all M1/M2 stories and other M3 release gates are complete with evidence.",
+            "Record chosen costs, restore results, policy/tax configuration, payment/email domains, support path and dependency versions.",
+            "Create versioned release notes and upgrade instructions; mark known limitations including MP4 delivery and manual email retry.",
+            "Enable live payments only through the owner’s configured deployment process after sandbox verification."
+          ],
+          "verification": "Review the checklist against PRODUCT.md and verify the published release artifact and smoke tests.",
+          "depends_on": [
+            "Q02",
+            "Q03"
+          ],
+          "size": "S",
+          "area": "quality",
+          "priority": "P0",
+          "milestone": "M3 · Launch"
+        }
+      ]
+    },
+    {
+      "key": "E11",
+      "title": "Focused learning and sales enhancements",
+      "outcome": "Add the most useful Teachable-inspired capabilities after the core shop works.",
+      "milestone": "M4 · Enhancements",
+      "issues": [
+        {
+          "key": "G01",
+          "title": "Add coupons with enforceable limits",
+          "outcome": "Offer discounts without breaking price integrity.",
+          "acceptance": [
+            "Create fixed/percentage discounts with validity, product scope and maximum redemptions.",
+            "Validate server-side and define reservation/release behavior for concurrent or abandoned checkouts.",
+            "Preserve discounted totals in order snapshots and display final price before redirect.",
+            "Support expiry, zero-floor validation and an accessible invalid-coupon state."
+          ],
+          "verification": "Test concurrent last-use redemption, expiry, wrong product and refund accounting.",
+          "depends_on": [
+            "Q04",
+            "P01",
+            "P02"
+          ],
+          "size": "M",
+          "area": "fullstack",
+          "priority": "P1",
+          "milestone": "M4 · Enhancements"
+        },
+        {
+          "key": "G02",
+          "title": "Add fixed-price course and download bundles",
+          "outcome": "Sell a curated set with predictable access.",
+          "acceptance": [
+            "Publish bundles of existing products with a single configured price and clear included items.",
+            "Snapshot membership at purchase; later edits do not silently remove previously promised access.",
+            "Grant constituent products atomically and define full/partial-refund grant policy.",
+            "Handle already-owned items clearly without revoking independent grants."
+          ],
+          "verification": "Test bundle edit after purchase, duplicate webhook, partial failure and overlapping individual ownership.",
+          "depends_on": [
+            "Q04",
+            "P03",
+            "C01"
+          ],
+          "size": "L",
+          "area": "fullstack",
+          "priority": "P1",
+          "milestone": "M4 · Enhancements"
+        },
+        {
+          "key": "G03",
+          "title": "Add simple lesson quizzes",
+          "outcome": "Give learners a useful comprehension check.",
+          "acceptance": [
+            "Support single-choice questions, correct answers and feedback in the owner editor.",
+            "Grade on the server, preserve question/version history for attempts and define retake behavior.",
+            "Keep answers out of pre-submission payloads when grading matters; require course entitlement.",
+            "Provide accessible error/result states without timers or complex exam surveillance."
+          ],
+          "verification": "Test keyboard/screen-reader completion, unauthorized access, version edits and repeat attempts.",
+          "depends_on": [
+            "Q04",
+            "C02",
+            "L03"
+          ],
+          "size": "M",
+          "area": "fullstack",
+          "priority": "P1",
+          "milestone": "M4 · Enhancements"
+        },
+        {
+          "key": "G04",
+          "title": "Add verifiable completion certificates",
+          "outcome": "Recognize completion without exposing learner data publicly.",
+          "acceptance": [
+            "Define eligibility from versioned completion rules and optional quiz threshold.",
+            "Generate an accessible printable certificate/download with unique ID and owner branding.",
+            "Offer a minimal opt-in verification view and revocation behavior without public email disclosure.",
+            "Make duplicate generation idempotent and preserve certificate version history."
+          ],
+          "verification": "Test eligibility boundaries, duplicate issue, revoked access and minimal public verification data.",
+          "depends_on": [
+            "G03",
+            "L03",
+            "C05"
+          ],
+          "size": "M",
+          "area": "fullstack",
+          "priority": "P1",
+          "milestone": "M4 · Enhancements"
+        },
+        {
+          "key": "G05",
+          "title": "Add timezone-aware drip lessons",
+          "outcome": "Release course material gradually without a scheduler.",
+          "acceptance": [
+            "Configure fixed-date or enrollment-relative lesson availability with explicit shop timezone semantics.",
+            "Compute eligibility on each server request; do not rely on browser time or timer Functions.",
+            "Protect player/resource URLs before unlock and show the learner the next availability time.",
+            "Define DST, time-zone changes, complimentary enrollment and refund/regrant behavior; email reminders remain out of scope."
+          ],
+          "verification": "Test DST boundaries, forged device clock, before/after unlock and asset authorization.",
+          "depends_on": [
+            "Q04",
+            "A03",
+            "L02"
+          ],
+          "size": "M",
+          "area": "fullstack",
+          "priority": "P1",
+          "milestone": "M4 · Enhancements"
+        }
+      ]
+    }
+  ]
+}

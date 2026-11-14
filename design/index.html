@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Pagelet interactive design prototype. One creator, one beautiful little shop.">
+  <title>Pagelet — Your website. Your products. Your start.</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="demo-banner">Pagelet design preview <span>Fictional products. No payments or accounts.</span></div>
+<header class="header wrap">
+  <a class="brand" href="#shop" aria-label="Pagelet shop"><svg width="30" height="34" viewBox="0 0 30 34" aria-hidden="true"><path d="M2 3h17l9 9v19H2z" fill="#244ACC"/><path d="M19 3v9h9M9 18h12M9 24h8" fill="none" stroke="white" stroke-width="2"/></svg><span>pagelet<span class="brand-dot">.</span></span></a>
+  <nav class="view-nav" aria-label="Preview screens">
+    <button type="button" data-view="shop" aria-current="page">Shop</button>
+    <button type="button" data-view="learning">My learning</button>
+    <button type="button" data-view="studio">Studio</button>
+  </nav>
+  <span class="shop-signature">A little shop by <strong>Studio North</strong></span>
+</header>
+<main id="main" tabindex="-1">
+  <section id="shop-view" class="view" aria-label="Shop">
+    <div class="hero wrap">
+      <div class="hero-copy">
+        <div class="creator"><span class="avatar" aria-hidden="true">sn</span><span>Practical things for independent makers</span></div>
+        <h1>Good ideas<br>deserve to<br>make it online.</h1>
+        <p>Thoughtful courses and useful little tools to help you build a website you're proud to put your name on.</p>
+        <a class="button primary" href="#collection">Find your next project</a>
+        <div class="hero-note"><span aria-hidden="true">✳</span> Make something of your own. Start where you are.</div>
+      </div>
+      <button type="button" class="feature-book" data-product="website" aria-label="Explore Build a website that feels like you">
+        <span class="book-top"><span>Studio North</span><span>Video course</span></span>
+        <span class="book-title">A website.<br>A little more you.</span>
+        <span class="window-art" aria-hidden="true"><span class="window-bar"><i></i><i></i><i></i></span><span class="art-content"><span class="art-line"></span><span class="art-line short"></span><span class="art-square"></span><span class="art-circle"></span></span><span class="art-pointer">↖</span></span>
+        <span class="book-bottom"><span>From a blank page<br>to your own place online.</span><span class="book-seal" aria-hidden="true">Made<br>by you</span></span>
+      </button>
+    </div>
+    <section class="collection wrap" id="collection" aria-labelledby="collection-heading">
+      <div class="section-heading"><div><h2 id="collection-heading">A small collection. A good place to start.</h2><p>Learn a skill. Borrow a framework. Make it your own.</p></div><span class="collection-count" id="product-count" role="status">3 products</span></div>
+      <div class="filters" role="group" aria-label="Filter products"><button type="button" data-filter="all" aria-pressed="true">Everything</button><button type="button" data-filter="course" aria-pressed="false">Courses</button><button type="button" data-filter="download" aria-pressed="false">Downloads</button></div>
+      <div class="product-grid">
+        <article class="product" data-type="course"><button type="button" class="product-cover course-cover" data-product="website" aria-label="View Build a website that feels like you"><span>Studio North / Course</span><strong>Build something<br>that feels like you.</strong><span class="mini-browser" aria-hidden="true"><i></i><b></b></span><span>12 lessons. One website that's yours.</span></button><div class="product-meta"><span>Video course · 2h 40m</span><span>$49</span></div><h3><button type="button" data-product="website">Build a website that feels like you</button></h3><p>From the first idea to the moment you hit publish.</p></article>
+        <article class="product" data-type="download"><button type="button" class="product-cover workbook-cover" data-product="workbook" aria-label="View The website launch workbook"><span>Studio North / Workbook</span><strong>A little less guessing.<br>A lot more doing.</strong><span class="check-art" aria-hidden="true"><i>✓</i><i>✓</i><i></i></span><span>Your idea, with a plan.</span></button><div class="product-meta"><span>PDF workbook · 32 pages</span><span>$12</span></div><h3><button type="button" data-product="workbook">The website launch workbook</button></h3><p>A clear path from “one day” to launch day.</p></article>
+        <article class="product" data-type="download"><button type="button" class="product-cover toolkit-cover" data-product="toolkit" aria-label="View The independent portfolio toolkit"><span>Studio North / Toolkit</span><strong>Your work.<br>In good company.</strong><span class="tiles-art" aria-hidden="true"><i></i><i></i><i></i></span><span>A head start, with room for you.</span></button><div class="product-meta"><span>Templates · ZIP + PDF</span><span>$24</span></div><h3><button type="button" data-product="toolkit">The independent portfolio toolkit</button></h3><p>Simple starting points for showing your best work.</p></article>
+      </div>
+    </section>
+    <section class="creator-note wrap"><span class="avatar large" aria-hidden="true">sn</span><div><h2>A small studio. Something useful to share.</h2><p>Studio North is a fictional independent design studio. This sample shop shows how Pagelet gives a creator's work a thoughtful home, from the first visit to the last lesson.</p></div><a href="../docs/DESIGN.md">Read the design brief</a></section>
+  </section>
+
+  <section id="learning-view" class="view wrap learning" aria-label="My learning" hidden>
+    <div class="learning-intro"><div><p class="breadcrumb">My learning / Build a website that feels like you</p><h1>A little progress, every day.</h1></div><div class="progress-summary"><span id="progress-label">1 of 4 sample lessons complete</span><progress id="course-progress" value="1" max="4">25%</progress></div></div>
+    <div class="lesson-layout">
+      <aside class="curriculum" aria-label="Course curriculum"><h2>Your course</h2><p>Build a website that feels like you</p><h3>Start with a good foundation</h3><div id="lesson-list"></div><div class="curriculum-note">This preview has four sample lessons. Progress lasts only while this page is open.</div></aside>
+      <div class="lesson-main"><div class="lesson-slide"><span class="slide-label">Studio North / Lesson notes</span><div class="slide-content"><span class="slide-mark" aria-hidden="true">✳</span><h2 id="slide-title">Give your website<br>a reason to exist.</h2></div><span>One idea. One person. One useful next step.</span></div><div class="lesson-heading"><div><p id="lesson-duration">Lesson 2 · 8 minutes</p><h2 id="lesson-title">Find the point of your page</h2></div><button type="button" id="complete-lesson" class="button primary">Mark complete</button></div><p id="lesson-body" class="lesson-body"></p><details class="transcript"><summary>Read the sample transcript</summary><p>Before choosing colors or layouts, write down who you want to help. What are they trying to do? What can your website make easier? Turn that answer into one plain sentence. You now have a useful starting point for every decision that follows.</p></details><div class="resource"><span class="file-icon" aria-hidden="true">PDF</span><div><strong>Your one-page website brief</strong><p>Sample resource · download delivery planned</p></div><button type="button" class="button secondary" id="resource-info">View details</button></div><p id="learning-status" class="status" role="status"></p></div>
+    </div>
+  </section>
+
+  <section id="studio-view" class="view studio wrap" aria-label="Owner studio" hidden>
+    <aside class="studio-nav"><div class="studio-name"><span class="avatar" aria-hidden="true">sn</span><div><strong>Studio North</strong><span>Your shop studio</span></div></div><nav aria-label="Studio sections"><button type="button" class="selected" data-studio-tab="overview" aria-current="page">Overview</button><button type="button" data-studio-tab="products">Products</button><button type="button" data-studio-tab="orders">Orders</button></nav><div class="studio-foot"><span class="live-dot"></span> Sample shop preview<p>One owner. All your ideas.</p></div></aside>
+    <div class="studio-main"><div class="studio-heading"><div><p>Welcome to your studio</p><h1 id="studio-title">A good day to make something.</h1></div><button type="button" class="button primary" id="new-product">Create a product</button></div><p class="sample-note">Sample data for design review. Changes here are temporary.</p>
+      <div class="metrics" id="metrics"><div><span>Sales this month</span><strong>$1,284<span>.00</span></strong><p>Sample total before fees</p></div><div><span>Orders</span><strong>38</strong><p>From 32 sample customers</p></div><div><span>Published products</span><strong>3</strong><p>A course and two downloads</p></div></div>
+      <section class="studio-panel" id="studio-products"><div class="panel-heading"><h2>Your products</h2><span id="studio-product-count">3 products</span></div><div class="table-scroll"><table><caption class="sr-only">Sample products and publishing status</caption><thead><tr><th scope="col">Product</th><th scope="col">Status</th><th scope="col">Price</th><th scope="col">Action</th></tr></thead><tbody id="studio-product-rows"></tbody></table></div></section>
+      <section class="studio-panel" id="studio-orders"><div class="panel-heading"><h2>Recent orders</h2><span>Fictional purchases</span></div><div class="order-row"><span class="customer-avatar" aria-hidden="true">JL</span><div><strong>Jamie Lee</strong><p>Build a website that feels like you</p></div><span class="badge">Paid</span><strong>$49</strong></div><div class="order-row"><span class="customer-avatar peach" aria-hidden="true">AR</span><div><strong>Alex Rivera</strong><p>The website launch workbook</p></div><span class="badge">Paid</span><strong>$12</strong></div></section>
+      <div class="studio-tip"><span aria-hidden="true">✳</span><div><h3>Your next good idea starts small.</h3><p>A practical guide, a useful template, a lesson worth sharing. Give it a home here.</p></div></div><p id="studio-status" role="status"></p>
+    </div>
+  </section>
+</main>
+<footer class="footer wrap"><span class="footer-brand">pagelet.</span><p>Your website. Your products. Your start.</p><a href="../README.md">About this project</a></footer>
+<dialog id="product-dialog" aria-labelledby="dialog-title"><div class="dialog-top"><span id="dialog-kind">Course preview</span><button type="button" class="close" aria-label="Close product details">×</button></div><h2 id="dialog-title"></h2><p id="dialog-copy"></p><ul id="dialog-includes"></ul><div class="dialog-bottom"><strong id="dialog-price"></strong><button type="button" id="explore-course" class="button primary">Explore the sample lesson</button></div><p class="dialog-notice">Design preview only. Checkout and file delivery are planned in the product backlog.</p></dialog>
+<dialog id="create-dialog" aria-labelledby="create-title"><div class="dialog-top"><span>Your next product</span><button type="button" class="close" aria-label="Close new product">×</button></div><h2 id="create-title">Start with an idea.</h2><form id="create-form"><label for="draft-title">Product name</label><input id="draft-title" name="title" required maxlength="100" placeholder="A useful thing you want to share"><label for="draft-type">What are you making?</label><select id="draft-type" name="type"><option value="course">A course</option><option value="download">A digital download</option></select><p class="dialog-notice">This creates a temporary sample row. Nothing is uploaded or published.</p><button type="submit" class="button primary">Create sample draft</button></form></dialog>
+</body>
+</html>

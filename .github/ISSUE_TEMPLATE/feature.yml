@@ -1,0 +1,16 @@
+name: Feature request
+description: Propose a focused improvement for a single-owner shop
+title: "[Feature] "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: outcome
+    attributes:
+      label: User problem and desired outcome
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria and cost implications
+      description: Describe observable behavior and any new service dependencies.

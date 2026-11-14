@@ -1,0 +1,19 @@
+name: Bug report
+description: Report a reproducible Pagelet problem
+title: "[Bug] "
+labels: [bug]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What happened?
+      description: Include the expected result and reproduction steps. Do not include customer data or secrets.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version and environment
+      placeholder: Commit or release, browser, and hosting tier
+    validations:
+      required: true
