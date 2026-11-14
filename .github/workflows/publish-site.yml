@@ -1,0 +1,96 @@
+name: Publish storefront
+
+# Started only by the API (workflow_dispatch with a server-held token). Exports the public catalog for THIS publication,
+# builds, deploys to Static Web Apps, and only then reports success. Drafts, private lessons and storage keys never
+# reach this workflow.
+on:
+  workflow_dispatch:
+    inputs:
+      publication_id:
+        description: Publication ID created by the API
+        required: true
+        type: string
+      idempotency_key:
+        description: Same value as publication_id; the API sends both
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-site
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    environment: production-publish
+    env:
+      PUBLICATION_ID: ${{ inputs.publication_id }}
+      PUBLISH_TOKEN: ${{ secrets.PUBLISH_TOKEN }}
+      PUBLIC_API_BASE: ${{ vars.PUBLIC_API_BASE }}
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js from .nvmrc
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+        with:
+          version: 12.18.0
+
+      - name: Install from the lockfile
+        run: pnpm install --frozen-lockfile
+
+      - name: Export this publication's public catalog (skips when already published)
+        id: export
+        run: |
+          set +e
+          node scripts/export-public-catalog.mjs apps/web/public/catalog
+          code=$?
+          set -e
+          if [ "$code" -eq 3 ]; then echo "skip=true" >> "$GITHUB_OUTPUT"; exit 0; fi
+          if [ "$code" -ne 0 ]; then exit "$code"; fi
+          echo "skip=false" >> "$GITHUB_OUTPUT"
+
+      - name: Build the web app
+        if: steps.export.outputs.skip == 'false'
+        run: pnpm --filter @pagelet/web run build
+
+      - name: Deploy to Static Web Apps
+        if: steps.export.outputs.skip == 'false'
+        uses: Azure/static-web-apps-deploy@4d27395796ac319302594769cfe812bd207490b1 # v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          action: upload
+          app_location: apps/web
+          output_location: dist
+          skip_app_build: true
+          skip_api_build: true
+
+      - name: Report success to the API
+        if: steps.export.outputs.skip == 'false' && success()
+        env:
+          PUBLISH_CALLBACK_URL: ${{ vars.PUBLISH_CALLBACK_URL }}
+        run: |
+          curl --fail --silent --show-error -X POST \
+            -H "Authorization: Bearer $PUBLISH_TOKEN" -H "Content-Type: application/json" \
+            -d "{\"outcome\":\"succeeded\",\"buildUrl\":\"$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID\"}" \
+            "$PUBLISH_CALLBACK_URL/api/internal/publications/$PUBLICATION_ID/result"
+
+      - name: Report failure to the API
+        if: failure()
+        env:
+          PUBLISH_CALLBACK_URL: ${{ vars.PUBLISH_CALLBACK_URL }}
+        run: |
+          curl --silent -X POST -H "Authorization: Bearer $PUBLISH_TOKEN" -H "Content-Type: application/json" \
+            -d '{"outcome":"failed","error":"Static build or deploy failed; see the workflow run."}' \
+            "$PUBLISH_CALLBACK_URL/api/internal/publications/$PUBLICATION_ID/result" || true
