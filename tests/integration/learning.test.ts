@@ -138,4 +138,21 @@ describe('learning access (A03, L02, L03, L04)', () => {
     row = (await db.query('SELECT completed_at FROM lesson_progress WHERE customer_id = $1', [buyer.id])).rows[0];
     expect(row.completed_at).not.toBeNull();
   });
+
+  it('lists the ready files of a purchased product only to its buyer', async () => {
+    const buyer = await session('files-buyer@example.test');
+    const stranger = await session('files-stranger@example.test');
+    await buy(buyer.id);
+    const files = await routes['library-files'].handler(
+      Object.assign(makeRequest('GET', 'library/products/course-one/files', { headers: { cookie: buyer.cookie } }), { params: { slug: 'course-one' } }),
+      invocation,
+    );
+    expect(files.status).toBe(200);
+    expect(bodyOf(files).files.map((f: any) => f.assetId)).toEqual([FILE]);
+    const denied = await routes['library-files'].handler(
+      Object.assign(makeRequest('GET', 'library/products/course-one/files', { headers: { cookie: stranger.cookie } }), { params: { slug: 'course-one' } }),
+      invocation,
+    );
+    expect(denied.status).toBe(404);
+  });
 });

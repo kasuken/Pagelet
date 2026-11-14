@@ -47,6 +47,11 @@ export const ownerRoutes: Record<string, Def> = {
     return { cache: 'private', body: await owner.orderDetail(getDeps().db(), param(ctx, 'orderId')) };
   }),
 
+  'owner-product-publications': def('GET', 'owner/products/{productId}/publications', async (ctx) => {
+    requireOwner(ctx.request, config());
+    return { cache: 'private', body: await owner.productPublications(getDeps().db(), param(ctx, 'productId')) };
+  }),
+
   'owner-customers': def('GET', 'owner/customers', async (ctx) => {
     requireOwner(ctx.request, config());
     const q = ctx.request.query.get('q') ?? undefined;

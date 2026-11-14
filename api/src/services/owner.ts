@@ -125,9 +125,13 @@ export async function listCustomers(db: Db, query: string | undefined) {
 export async function customerDetail(db: Db, customerId: string) {
   const { rows } = await db.query('SELECT id, email_normalized, created_at, erased_at FROM customers WHERE id = $1', [customerId]);
   if (!rows[0]) throw apiErrors.notFound();
-  const [entitlements, orders] = await Promise.all([
+  const [entitlements, orders, grants] = await Promise.all([
     db.query(
       `SELECT e.product_id, p.title, e.status FROM entitlements e JOIN products p ON p.id = e.product_id WHERE e.customer_id = $1`,
+      [customerId],
+    ),
+    db.query(
+      `SELECT g.id, g.product_id, g.source, g.status, g.created_at FROM entitlement_grants g WHERE g.customer_id = $1 ORDER BY g.created_at DESC LIMIT 100`,
       [customerId],
     ),
     db.query('SELECT id, status, amount_minor, currency, created_at FROM orders WHERE customer_id = $1 ORDER BY created_at DESC LIMIT 50', [customerId]),
@@ -138,6 +142,7 @@ export async function customerDetail(db: Db, customerId: string) {
     erased: Boolean(rows[0].erased_at),
     entitlements: entitlements.rows.map((e) => ({ productId: e.product_id, title: e.title, status: e.status })),
     orders: orders.rows.map((o) => ({ id: o.id, status: o.status, total: { amountMinor: o.amount_minor, currency: o.currency }, createdAt: new Date(o.created_at).toISOString() })),
+    grants: grants.rows.map((g) => ({ id: g.id, productId: g.product_id, source: g.source, status: g.status, createdAt: new Date(g.created_at).toISOString() })),
   };
 }
 
@@ -304,4 +309,26 @@ export async function rebuildMessage(db: Db, row: { id: string; template: string
     return purchaseAccessMessage({ to: row.recipient_email_normalized, shopName: rows[0].shop, productTitle: rows[0].title, libraryUrl: `${origin}/library`, idempotencyKey: row.id });
   }
   return null; // Login links and free-claim links contain single-use tokens that are not stored. The customer requests a new one.
+}
+
+/** Publication history for one product: queued, building, succeeded or failed, with the build link. */
+export async function productPublications(db: Db, productId: string) {
+  const { rows } = await db.query(
+    `SELECT id, version_no, reason, status, attempts, last_error, build_url, created_at, updated_at
+       FROM publications WHERE product_id = $1 ORDER BY created_at DESC LIMIT 20`,
+    [productId],
+  );
+  return {
+    items: rows.map((r) => ({
+      id: r.id,
+      versionNo: r.version_no,
+      reason: r.reason,
+      status: r.status,
+      attempts: r.attempts,
+      lastError: r.last_error,
+      buildUrl: r.build_url,
+      createdAt: new Date(r.created_at).toISOString(),
+      updatedAt: new Date(r.updated_at).toISOString(),
+    })),
+  };
 }

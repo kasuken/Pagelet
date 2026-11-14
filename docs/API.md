@@ -65,6 +65,38 @@ and the schemas in `packages/contracts/src/index.ts`. The frontend must call onl
 | POST | `/api/internal/publications/{publicationId}/result` | `Authorization: Bearer <PUBLISH_TOKEN>` | Build callback. Advances the public version only for a newer successful build. |
 | * | `/api/{anything else}` | — | `404 not_found` JSON. Never the SPA shell. |
 
+### Owner catalog, curriculum, media and shop (all owner-only, Origin-checked on mutations)
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| GET | `/api/owner/products` | List products with editor readiness. |
+| POST | `/api/owner/products` | Create a draft product. |
+| GET | `/api/owner/products/{id}` | Product detail with `publishReadiness` and `revision`. |
+| PATCH | `/api/owner/products/{id}` | Update; requires the current `revision` (`409 conflict` when stale). |
+| DELETE | `/api/owner/products/{id}` | Delete a draft that was never sold. |
+| POST | `/api/owner/products/{id}/sections` | Add a section. |
+| POST | `/api/owner/products/{id}/sections/reorder` | Reorder with the full ordered list of section IDs. |
+| PATCH / DELETE | `/api/owner/sections/{id}` | Rename or delete a section. |
+| POST | `/api/owner/sections/{id}/lessons` | Add a lesson (video or text). |
+| POST | `/api/owner/sections/{id}/lessons/reorder` | Reorder lessons in a section. |
+| PATCH / DELETE | `/api/owner/lessons/{id}` | Edit or delete a lesson. Rich text is sanitised on write. |
+| GET / PATCH | `/api/owner/shop` | Shop settings, branding and legal fields. Accent colour must meet 4.5:1 contrast. |
+| POST | `/api/owner/media/uploads` | Issue a single-blob upload URL for a new asset (server-derived key). |
+| POST | `/api/owner/media/uploads/{id}/finalize` | Verify size, type and signature; `400` on mismatch, `409` when the object is missing. |
+| DELETE | `/api/owner/media/uploads/{id}` | Abort a pending upload and remove its blob. |
+| DELETE | `/api/owner/media/assets/{id}` | Delete an asset not referenced by a sale. |
+| GET | `/api/owner/media/usage` | Storage used against the quota. |
+| POST | `/api/owner/media/cleanup` | Remove abandoned and rejected uploads (requires `confirm`). Never removes ready or referenced assets. |
+| GET | `/api/owner/products/{productId}/publications` | Publication history: queued, building, succeeded or failed, with the build link and last error. |
+
+### Learner additions
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| GET | `/api/library/products/{slug}/files` | Ready files of a purchased product (`assetId`, `versionLabel`, `mimeType`, `bytes`). `404` without an active entitlement. |
+
+`GET /api/owner/customers/{id}` now includes `grants` with IDs, so complimentary access can be revoked after a reload.
+
 Session errors from `POST /api/auth/sessions` and `POST /api/free-claims/confirm`: an expired, used, or unknown token returns `401 unauthorized` with a message to request a new link. Malformed bodies return `400 validation_failed`.
 
 ## Owner configuration

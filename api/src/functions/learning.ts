@@ -104,6 +104,28 @@ export const learningRoutes: Record<string, Def> = {
     return { cache: 'private', body: { saved: true } };
   }),
 
+  // Files of a purchased download product. Entitlement is checked before any asset is listed.
+  'library-files': def('GET', 'library/products/{slug}/files', async (ctx) => {
+    const deps = getDeps();
+    const customer = await requireCustomer(deps.db(), ctx.request);
+    const slug = validate(Slug, param(ctx, 'slug'));
+    const { rows: product } = await deps.db().query<{ id: string; title: string }>('SELECT id, title FROM products WHERE slug = $1', [slug]);
+    if (!product[0]) throw apiErrors.notFound();
+    await assertProductAccess(deps.db(), customer.customerId, product[0].id);
+    const { rows } = await deps.db().query(
+      `SELECT id, version_label, mime_type, actual_bytes FROM assets
+        WHERE product_id = $1 AND kind = 'file' AND status = 'ready' ORDER BY created_at, id`,
+      [product[0].id],
+    );
+    return {
+      cache: 'private',
+      body: {
+        product: { slug, title: product[0].title },
+        files: rows.map((r) => ({ assetId: r.id, versionLabel: r.version_label, mimeType: r.mime_type, bytes: Number(r.actual_bytes ?? 0) })),
+      },
+    };
+  }),
+
   'asset-download': def('GET', 'assets/{assetId}/download', async (ctx) => {
     const deps = getDeps();
     const customer = await requireCustomer(deps.db(), ctx.request);
